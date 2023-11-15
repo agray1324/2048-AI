@@ -3,14 +3,18 @@
 
 import random
 from pynput import keyboard
+import pygame
+import math
+
+size = 4
 
 def initialize_board():
-    board = [[0] * 4 for _ in range(4)]
+    board = [[0] * size for _ in range(size)]
     add_random_tile(board)
     return board
 
 def add_random_tile(board):
-    empty_cells = [(i, j) for i in range(4) for j in range(4) if board[i][j] == 0]
+    empty_cells = [(i, j) for i in range(size) for j in range(size) if board[i][j] == 0]
     if empty_cells:
         i, j = random.choice(empty_cells)
         board[i][j] = 2 if random.random() < 0.9 else 4
@@ -21,7 +25,7 @@ def display_board(board):
     print()
 
 def merge_tiles(row):
-    new_row = [0] * 4
+    new_row = [0] * size
     index = 0
     for tile in row:
         if tile != 0:
@@ -67,62 +71,81 @@ def is_game_over(board):
     for row in board:
         if 0 in row:
             return False
-        for i in range(3):
+        for i in range(size-1):
             if row[i] == row[i + 1]:
+                return False
+    
+    for row in range(size - 1):
+        for i in range(size):
+            if board[row][i] == board[row + 1][i]:
                 return False
     return True
 
-move = None
-
-def on_press(key):
-    global move
-    if key == keyboard.Key.esc:
-        return False  # stop listener
-    try:
-        k = key.char  # single-char keys
-    except:
-        k = key.name  # other keys
-    if k == 'w' or k == 'up':
-        move = 'W'
-    elif k == 's' or k == 'down':
-        move = 'S'
-    elif k == 'a' or k == 'left':
-        move = 'A'
-    elif k == 'd' or k == 'right':
-        move = 'D'
-    else:
-        print('Please use either wasd or arrow keys.') 
-
-	
-
 def main():
     board = initialize_board()
-    listener = keyboard.Listener(on_press=on_press)
-    listener.start()  # start to listen on a separate thread	
+    global size
 
-    while True:
-        display_board(board)
+    pygame.init()
+    screen = pygame.display.set_mode((500, 500))
+    clock = pygame.time.Clock()
+
+    font = pygame.font.Font('freesansbold.ttf', 32)
+
+    display_board(board)
+    running = True
+
+    while running:
         if is_game_over(board):
             print("Game Over")
             break
-        global move
-        move = None
 
-        while move not in ['W', 'A', 'S', 'D']:
-            pass
+        colors = ["#eee4da", "#ede0c8", "#f2b179", "#f59563", "#f67c5f", "#f65e3b", "#edcf72", "#edcc61", "#edc850", "#edc53f", "#edc22e"]
+        screen.fill("#bbada0")
 
-        if move == 'W':
-            board = move_up(board)
-            add_random_tile(board)
-        elif move == 'A':
-            board = move_left(board)
-            add_random_tile(board)
-        elif move == 'S':
-            board = move_down(board)
-            add_random_tile(board)
-        elif move == 'D':
-            board = move_right(board)
-            add_random_tile(board)
+        for row in range(len(board)):
+            for col in range(len(board[row])):
+                if board[row][col] != 0:
+                    rect = pygame.Rect(col*500/size, row*500/size, 500/size, 500/size)
+                    text = font.render(str(board[row][col]), True, "black")
+    
+                    textRect = text.get_rect()
+                    
+                    textRect.center = (rect.centerx, rect.centery)
+
+                    pygame.draw.rect(screen, colors[int(math.log2(board[row][col])) - 1], rect)
+                    screen.blit(text, textRect)
+            
+        for i in range(1, size):
+            pygame.draw.line(screen, "#776e65", (i*500/size, 0), (i*500/size, 500), 5)
+            pygame.draw.line(screen, "#776e65", (0, i*500/size), (500, i*500/size), 5)
+
+
+        pygame.display.flip()
+
+        clock.tick(60)
+
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP or event.key == pygame.K_w:
+                    board = move_up(board)
+                    add_random_tile(board)
+                    display_board(board)
+                elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                    board = move_left(board)
+                    add_random_tile(board)
+                    display_board(board)
+                elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
+                    board = move_down(board)
+                    add_random_tile(board)
+                    display_board(board)
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                    board = move_right(board)
+                    add_random_tile(board)
+                    display_board(board)
+            elif event.type == pygame.QUIT:
+                running = False
+
+    pygame.quit()   
 
 if __name__ == "__main__":
     main()
