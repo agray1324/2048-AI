@@ -25,6 +25,7 @@ def display_board(board):
     print()
 
 def merge_tiles(row):
+    score = 0
     new_row = [0] * size
     index = 0
     for tile in row:
@@ -33,39 +34,44 @@ def merge_tiles(row):
                 new_row[index] = tile
             elif new_row[index] == tile:
                 new_row[index] *= 2
+                score += new_row[index]
                 index += 1
             else:
                 index += 1
                 new_row[index] = tile
-    return new_row
+    return new_row, score
 
 def transpose_board(board):
     return [list(row) for row in zip(*board)]
 
 def move_left(board):
     new_board = []
+    tot_score = 0
     for row in board:
-        new_row = merge_tiles(row)
+        new_row, score = merge_tiles(row)
+        tot_score += score
         new_board.append(new_row)
-    return new_board
+    return new_board, tot_score
 
 def move_right(board):
     reversed_board = [row[::-1] for row in board]
     new_board = []
+    tot_score = 0
     for row in reversed_board:
-        new_row = merge_tiles(row)
+        new_row, score = merge_tiles(row)
+        tot_score += score
         new_board.append(new_row[::-1])
-    return new_board
+    return new_board, tot_score
 
 def move_up(board):
     transposed_board = transpose_board(board)
-    new_board = move_left(transposed_board)
-    return transpose_board(new_board)
+    new_board, score = move_left(transposed_board)
+    return transpose_board(new_board), score
 
 def move_down(board):
     transposed_board = transpose_board(board)
-    new_board = move_right(transposed_board)
-    return transpose_board(new_board)
+    new_board, score = move_right(transposed_board)
+    return transpose_board(new_board), score
 
 def is_game_over(board):
     for row in board:
@@ -84,6 +90,8 @@ def is_game_over(board):
 def main():
     board = initialize_board()
     global size
+
+    score = 0
 
     pygame.init()
     screen = pygame.display.set_mode((500, 500))
@@ -127,20 +135,28 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP or event.key == pygame.K_w:
-                    board = move_up(board)
+                    board, added = move_up(board)
+                    score += added
                     add_random_tile(board)
+                    print("Score:", score)
                     display_board(board)
                 elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                    board = move_left(board)
+                    board, added = move_left(board)
+                    score += added
                     add_random_tile(board)
+                    print("Score:", score)
                     display_board(board)
                 elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                    board = move_down(board)
+                    board, added = move_down(board)
+                    score += added
                     add_random_tile(board)
+                    print("Score:", score)
                     display_board(board)
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                    board = move_right(board)
+                    board, added = move_right(board)
+                    score += added
                     add_random_tile(board)
+                    print("Score:", score)
                     display_board(board)
             elif event.type == pygame.QUIT:
                 running = False
