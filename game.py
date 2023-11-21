@@ -22,6 +22,18 @@ def add_random_tile(board):
         i, j = random.choice(empty_cells)
         board[i][j] = 2 if random.random() < 0.9 else 4
 
+def getAllInsertStates(board):
+    states2 = []
+    states4 = []
+    empty_cells = [(i, j) for i in range(size) for j in range(size) if board[i][j] == 0]
+    for cell in empty_cells:
+        i, j = cell
+        board[i][j] = 2 
+        states2.append(board)
+        board[i][j] = 4
+        states4.append(board)
+    return states2, states4
+
 def display_board(board):
     for row in board:
         print(" ".join(str(cell) if cell != 0 else '.' for cell in row))

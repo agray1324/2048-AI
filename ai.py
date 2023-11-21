@@ -59,12 +59,22 @@ def recursive(board, depth):
         return moves[scores.index(max(scores))], max(scores)
     else:
         rec_scores = []
+        rec_scores2 = []
+        rec_scores4 = []
         trig = False
         for state in states:
-            move, score = recursive(state, depth-1)
             if state == board:
                 score = 0
                 trig = True
+            else:
+                states2, states4 = getAllInsertStates(state)
+                for s in states2:
+                    move, score = recursive(s, depth-1)
+                    rec_scores2.append(score)
+                for s in states4:
+                    move, score = recursive(s, depth-1)
+                    rec_scores4.append(score)
+                score = 0.9 * (sum(rec_scores2)/len(rec_scores2)) + 0.1 * (sum(rec_scores4)/len(rec_scores4))
             rec_scores.append(score)
         return moves[rec_scores.index(max(rec_scores))], max(rec_scores)
 
@@ -73,9 +83,9 @@ def getMove(depth = 5):
     return recursive(board, depth)
 
 
-def depthAnalysis(min = 1, max = 6):
+def depthAnalysis(minimum = 1, maximum = 6):
     global board
-    for d in range(min, max):
+    for d in range(minimum, maximum):
         print("depth: ", d)
         maxes = []
         iter = 10
@@ -86,7 +96,6 @@ def depthAnalysis(min = 1, max = 6):
             while not is_game_over(board):
                 newMove, predScore = getMove(d)
                 move(newMove)
-                #showBoard()
                 for row in board:
                     m2 = max(row)
                     if(m2 > m):
@@ -103,4 +112,4 @@ def singleTest(depth):
         move(newMove)
         showBoard()
 
-singleTest(1)
+singleTest(2)
