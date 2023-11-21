@@ -43,7 +43,7 @@ def depthAnalysis(minimum = 1, maximum = 6):
             m = 0
             while not is_game_over(board):
                 newMove, predScore = getMove(d)
-                move(newMove)
+                board = move(board, newMove)
                 for row in board:
                     m2 = max(row)
                     if(m2 > m):
@@ -57,8 +57,8 @@ def singleTest(depth):
     board = initialize_board()
     while not is_game_over(board):
         newMove, predScore = getMove(depth)
-        move(newMove)
+        board = move(board, newMove)
         print(score(board))
-        showBoard()
+        showBoard(board)
 
 singleTest(3)

@@ -1,8 +1,7 @@
 from game import *
 
 
-def showBoard():
-    global board
+def showBoard(board):
     for row in board:
         s = ""
         for item in row:
@@ -11,8 +10,7 @@ def showBoard():
                 s+=" "
         print(s)
     print()
-def move(nesw):
-    global board
+def move(board, nesw):
     match(nesw):
         case 'n':
             newboard = move_up(board)
@@ -26,6 +24,7 @@ def move(nesw):
         #print(newboard, board)
         add_random_tile(newboard)
         board = newboard
+    return board
     
 
 def getNextStates(board):
@@ -52,3 +51,14 @@ def getScoresAndNextStates(board):
     for state in states:
         scores.append(score(state))
     return scores, states
+
+def getNextLegalMoves(board):
+    states = getNextStates(board)
+    r = []
+    i = 0
+    moves = ['n', 'e', 's', 'w']
+    for state in states:
+        if(board != state):
+            r.append(moves[i])
+        i+=1
+    return r
