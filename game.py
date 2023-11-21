@@ -8,9 +8,12 @@ import math
 
 size = 4
 
-def initialize_board():
+def initialize_board(s = 4):
+    global size
+    size = s
     board = [[0] * size for _ in range(size)]
     add_random_tile(board)
+    #print(board)
     return board
 
 def add_random_tile(board):
