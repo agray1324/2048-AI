@@ -85,5 +85,10 @@ def singleTest(depth):
         board = move(board, newMove)
         print(score(board))
         showBoard(board)
+    return max_function(board)
 
-singleTest(4)
+iterations = 100
+results = {2:0, 3:0,4:0,5:0,6:0,7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0, 14:0}
+for i in range(iterations):
+    results[singleTest(3)]+=1
+    print(results)

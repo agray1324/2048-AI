@@ -11,13 +11,6 @@ def hash(state):
         #    s+= str(state[i][j]) + "-"
     return s
 
-def max_function(state):
-    maximum = 0
-    for row in state:
-        maximum2 = max(row)
-        if(maximum2 > maximum):
-            maximum = maximum2
-    return maximum
 
 def hash3(state):
     s = ""

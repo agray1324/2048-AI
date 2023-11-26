@@ -52,6 +52,14 @@ score_arr =[
     [0, 1, 2, 3]
 ]
 
+def max_function(state):
+    maximum = 0
+    for row in state:
+        maximum2 = max(row)
+        if(maximum2 > maximum):
+            maximum = maximum2
+    return maximum
+
 def score(state):
     score = 0
     for i in range(len(state)):
