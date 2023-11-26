@@ -20,7 +20,7 @@ def add_random_tile(board):
     empty_cells = [(i, j) for i in range(size) for j in range(size) if board[i][j] == 0]
     if empty_cells:
         i, j = random.choice(empty_cells)
-        board[i][j] = 2 if random.random() < 0.9 else 4
+        board[i][j] = 1 if random.random() < 0.9 else 2#old: 2 if random.random() < 0.9 else 4
 
 def getAllInsertStates(board):
     states2 = []
@@ -28,9 +28,9 @@ def getAllInsertStates(board):
     empty_cells = [(i, j) for i in range(size) for j in range(size) if board[i][j] == 0]
     for cell in empty_cells:
         i, j = cell
-        board[i][j] = 2 
+        board[i][j] = 1#old: 2
         states2.append(board)
-        board[i][j] = 4
+        board[i][j] = 2#old: 4
         states4.append(board)
     return states2, states4
 
@@ -47,7 +47,7 @@ def merge_tiles(row):
             if new_row[index] == 0:
                 new_row[index] = tile
             elif new_row[index] == tile:
-                new_row[index] *= 2
+                new_row[index] += 1# old: *=2
                 index += 1
             else:
                 index += 1

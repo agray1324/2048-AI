@@ -1,6 +1,7 @@
 from ai import *
+import sys
 
-def recursive(board, depth):
+def recursive(board, depth, a, b):
     scores, states = getScoresAndNextStates(board)
     moves = ['n', 'e', 's', 'w']
     if(depth == 0):
@@ -28,7 +29,7 @@ def recursive(board, depth):
 
 def getMove(depth = 5):
     global board
-    return recursive(board, depth)
+    return recursive(board, depth, -1*sys.maxsize, sys.maxsize)
 
 
 def depthAnalysis(minimum = 1, maximum = 6):

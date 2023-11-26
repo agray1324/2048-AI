@@ -35,7 +35,7 @@ def getNextStates(board):
     states.append(move_left(board))
     return states
 
-def score(state):
+def score2(state):
     score = 0
     zeroCount =0
     for i in range(len(state)):
@@ -44,6 +44,20 @@ def score(state):
             if state[i][j] == 0:
                 zeroCount+=1
     return score*(2**zeroCount)
+
+score_arr =[
+    [15, 14, 13, 12],
+    [8, 9, 10, 11],
+    [7, 6, 5, 4],
+    [0, 1, 2, 3]
+]
+
+def score(state):
+    score = 0
+    for i in range(len(state)):
+        for j in range(len(state[0])):
+            score += state[i][j]*(2**score_arr[i][j])
+    return score
 
 def getScoresAndNextStates(board):
     states = getNextStates(board)
