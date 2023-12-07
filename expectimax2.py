@@ -107,7 +107,7 @@ def timedSearch(seconds):
                 best_move = newMove
             depth+=1
         board = move(board, best_move)
-        #print(depth-1)
+        print(depth-1)
         #print(score(board))
         #showBoard(board)
     return max_function(board)
@@ -168,7 +168,7 @@ def playGame(seconds):
                     
                     textRect.center = (rect.centerx, rect.centery)
 
-                    pygame.draw.rect(screen, colors[int(board[row][col]) - 1], rect)
+                    pygame.draw.rect(screen, colors[int(math.log2(board[row][col])) - 1], rect)
                     screen.blit(text, textRect)
             
         for i in range(1, size):
@@ -183,9 +183,9 @@ def playGame(seconds):
         m = getTimedMove(board, seconds)
         board = move(board, m)
         display_board(modelToDisplay(board))
+        time.sleep(0.5)
 
     pygame.quit()   
-    return max_function(board)
             
 
 def singleTest(depth):
@@ -194,33 +194,14 @@ def singleTest(depth):
     while not is_game_over(board):
         newMove, predScore = getMove(depth)
         board = move(board, newMove)
-        #print(score(board))
-        #showBoard(board)
+        print(score(board))
+        showBoard(board)
     return max_function(board)
 
-def getRandomMove():
-    global board
-    moves = getNextLegalMoves(board)
-    move = random.choice(moves)
-    return move
-
-def singleRandomTest():
-    global board
-    board = initialize_board()
-    while not is_game_over(board):
-        newMove = getRandomMove()
-        print(newMove)
-        board = move(board, newMove)
-        #print(score(board))
-        #showBoard(board)
-    return max_function(board)
-
-
-iterations = 20
+iterations = 100
 results = {2:0, 3:0,4:0,5:0,6:0,7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0, 14:0, 15:0, 16:0}
 for i in range(iterations):
-    print(i)
-    results[timedSearch(0.01)]+=1
+    results[timedSearch(0.25)]+=1
     with open("result.txt", "w") as f:
         f.write(str(results))
 
