@@ -2,7 +2,7 @@ from ai import *
 import sys
 import time
 
-def Player(board, depth, a, b, end = False):
+def Player(board, depth, a, b, end = False, resultFound = False):
     if end:
         if time.time() > end:
             return -1, 0
@@ -18,19 +18,16 @@ def Player(board, depth, a, b, end = False):
         bestAction = -1
         for move in moves:
             state = states[directions.index(move)]
-            newScore, newAction = boardMove(state, depth, a, b, end)
+            newScore, newAction = boardMove(state, depth, a, b, end, resultFound)
             if(newScore > s):
                 s = newScore
                 bestAction = move
                 a = max(a, s)
-                if end:
+                if end and resultFound:
                     if time.time() > end:
                         return -1, 0
                 if(s > b):
                     return s, bestAction
-        if end:
-            if time.time() > end:
-                return -1, 0
         return s, bestAction
         """if state == board:
             score = 0
@@ -46,12 +43,12 @@ def Player(board, depth, a, b, end = False):
         rec_scores.append(score)
     return moves[rec_scores.index(max(rec_scores))], max(rec_scores)"""
     
-def boardMove(state, depth, a, b, end):
+def boardMove(state, depth, a, b, end, resultFound):
     states2, states4 = getAllInsertStates(state)
     states = states2 + states4
     s = sys.maxsize
     for state in states:
-        newScore, newAction = Player(state, depth-1, a, b, end)
+        newScore, newAction = Player(state, depth-1, a, b, end, resultFound)
         if(newScore < s):
             s = newScore
             b = min(b, s)
@@ -65,9 +62,9 @@ def boardMove(state, depth, a, b, end):
             return -1, 0
     return s, ""
 
-def getMove(depth = 5, end = False):
+def getMove(depth = 5, end = False, resultFound = False):
     global board
-    score, move = Player(board, depth, -1*sys.maxsize, sys.maxsize, end)
+    score, move = Player(board, depth, -1*sys.maxsize, sys.maxsize, end, resultFound)
     #print(move, score)
     return move, score
 
@@ -93,30 +90,39 @@ def depthAnalysis(minimum = 1, maximum = 6):
         print("max: ", max(maxes))
         print("average: ",sum(maxes)/len(maxes))
 
-def timedSearch(seconds):
+def timedSearch(seconds, print=False):
     global board
     board = initialize_board()
+    moves = 0
+    totalDepth = 0
     while not is_game_over(board):
         end = time.time() + seconds
         best_move, best_score = -1, 0
         depth = 1
-        while(time.time() < end):
-            newMove, newScore = getMove(depth, end)
+        maxdepth = 8
+        resultFound = False
+        while(depth <= maxdepth and time.time() < end):
+            newMove, newScore = getMove(depth, end,resultFound)
             if(newScore >= best_score):
                 best_score = newScore
                 best_move = newMove
             depth+=1
+            resultFound = True
+        totalDepth+=depth
+        moves += 1
         board = move(board, best_move)
-        #print(depth-1)
-        #print(score(board))
-        #showBoard(board)
-    return max_function(board)
+        if(print):
+            #print(depth-1)
+            #print(score(board))
+            showBoard(board)
+    return max_function(board), totalDepth/moves
 
 def getTimedMove(board, seconds):
     end = time.time() + seconds
     best_move, best_score = -1, 0
     depth = 1
-    while(time.time() < end):
+    maxdepth = 8
+    while(depth <= maxdepth and time.time() < end):
         newMove, newScore = getMove(depth, end)
         if(newScore >= best_score):
             best_score = newScore
@@ -213,14 +219,16 @@ def singleRandomTest():
         board = move(board, newMove)
         #print(score(board))
         #showBoard(board)
-    return max_function(board)
+    return max_function(board), 0
 
-
-iterations = 20
-results = {2:0, 3:0,4:0,5:0,6:0,7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0, 14:0, 15:0, 16:0}
-for i in range(iterations):
-    print(i)
-    results[timedSearch(0.01)]+=1
-    with open("result.txt", "w") as f:
-        f.write(str(results))
-
+def curr_test():
+    iterations = 200
+    results = {2:0, 3:0,4:0,5:0,6:0,7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0, 14:0, 15:0, 16:0, 17: 0, 18:0}
+    for i in range(iterations):
+        print(i)
+        testScore, avg = timedSearch(0.1)
+        results[testScore]+=1
+        print(avg)
+        with open("result.txt", "a") as f:
+            f.write(str(results))
+            f.write("\n")

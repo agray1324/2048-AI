@@ -1,73 +1,52 @@
 from ai import *
 import sys
 import time
-
-def Player(board, depth, a, b, end = False):
-    if end:
-        if time.time() > end:
-            return -1, 0
-    scores, states = getScoresAndNextStates(board)
+import random
+    
+def recursive(board, depth):
+    states, scores = getScoresAndNextLegalStates(board)
     moves = getNextLegalMoves(board)
-    directions = ['n', 'e', 's', 'w']
-    if((depth == 0) or (moves == [])):
-        s = score(board)
-        return s, ""
+    if(moves == []):
+        return "", -1000000000
+    if(depth == 0):
+        #print(board)
+        #print(states)
+        return moves[scores.index(max(scores))], max(scores)
     else:
         rec_scores = []
-        s = -1 * sys.maxsize
-        bestAction = -1
-        for move in moves:
-            state = states[directions.index(move)]
-            newScore, newAction = boardMove(state, depth, a, b, end)
-            if(newScore > s):
-                s = newScore
-                bestAction = move
-                a = max(a, s)
-                if end:
-                    if time.time() > end:
-                        return -1, 0
-                if(s > b):
-                    return s, bestAction
-        if end:
-            if time.time() > end:
-                return -1, 0
-        return s, bestAction
-        """if state == board:
-            score = 0
-        else:
-            states2, states4 = getAllInsertStates(state)
-            for s in states2:
-                move, score = recursive(s, depth-1)
-                rec_scores2.append(score)
-            for s in states4:
-                move, score = recursive(s, depth-1)
-                rec_scores4.append(score)
-            score = min(min(rec_scores2),min(rec_scores4))
-        rec_scores.append(score)
-    return moves[rec_scores.index(max(rec_scores))], max(rec_scores)"""
-    
-def boardMove(state, depth, a, b, end):
-    states2, states4 = getAllInsertStates(state)
-    states = states2 + states4
-    s = sys.maxsize
-    for state in states:
-        newScore, newAction = Player(state, depth-1, a, b, end)
-        if(newScore < s):
-            s = newScore
-            b = min(b, s)
-            if end:
-                if time.time() > end:
-                    return -1, 0
-            if (s < a):
-                return s, ""
-    if end:
-        if time.time() > end:
-            return -1, 0
-    return s, ""
+        rec_scores2 = []
+        rec_scores4 = []
+        trig = False
+        for state in states:
+            #print(state, board)
+            if state == board:
+                score = 0
+                trig = True
+            else:
+                states2, states4 = getAllInsertStates(state)
+                l = len(states2)
+                if(l != 0):   
+                    numExansion = min(l, depth, 4)
+                    #print(numExansion)
+                    if(l == numExansion):
+                        statesExpanded = range(l)
+                    else:
+                        statesExpanded = random.sample(range(l), numExansion)
+                    #print(l, depth, 4, statesExpanded)
+                    #print("states expanded: ", statesExpanded)
+                    for s in statesExpanded:
+                        move, score = recursive(states2[s], depth-1)
+                        rec_scores2.append(score)
+                        move, score = recursive(states4[s], depth-1)
+                        rec_scores4.append(score)
+                    #print(rec_scores2)
+                    score = 0.9 * (sum(rec_scores2)/len(rec_scores2)) + 0.1 * (sum(rec_scores4)/len(rec_scores4))
+            rec_scores.append(score)
+        return moves[rec_scores.index(max(rec_scores))], max(rec_scores)
 
-def getMove(depth = 5, end = False):
+def getMove(depth = 8, end = False):
     global board
-    score, move = Player(board, depth, -1*sys.maxsize, sys.maxsize, end)
+    move, score = recursive(board, depth)
     #print(move, score)
     return move, score
 
@@ -107,7 +86,7 @@ def timedSearch(seconds):
                 best_move = newMove
             depth+=1
         board = move(board, best_move)
-        print(depth-1)
+        #print(depth-1)
         #print(score(board))
         #showBoard(board)
     return max_function(board)
@@ -193,6 +172,7 @@ def singleTest(depth):
     board = initialize_board()
     while not is_game_over(board):
         newMove, predScore = getMove(depth)
+        print(newMove)
         board = move(board, newMove)
         print(score(board))
         showBoard(board)
@@ -201,7 +181,11 @@ def singleTest(depth):
 iterations = 100
 results = {2:0, 3:0,4:0,5:0,6:0,7:0, 8:0, 9:0, 10:0, 11:0, 12:0, 13:0, 14:0, 15:0, 16:0}
 for i in range(iterations):
-    results[timedSearch(0.25)]+=1
+    print(i)
+    depth = singleTest(4)
+    results[depth]+=1
     with open("result.txt", "w") as f:
         f.write(str(results))
+
+
 
